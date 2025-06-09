@@ -8,12 +8,9 @@ from django.contrib.auth.models import User
 from django.db.models import Value
 from django.db.models.functions import Concat
 from django.contrib.admin.views.decorators import staff_member_required
-from empresarial.utils import gerar_senha_aleatoria
+from empresarial.utils import gerar_pdf_exames, gerar_senha_aleatoria
 from exames.models import SolicitacaoExame
-from django.conf import settings
-from django.template.loader import render_to_string
-from io import BytesIO
-from weasyprint import HTML
+
 
 @staff_member_required 
 def gerenciar_clientes(request):
@@ -50,18 +47,6 @@ def proxy_pdf(request, exame_id):
     response = exame.resultado.open()
     return FileResponse(response)
 
-
-def gerar_pdf_exames(exame, paciente, senha):
-
-    path_template = os.path.join(settings.BASE_DIR, 'templates/partials/senha_exame.html')
-    template_render = render_to_string(path_template, {'exame': exame, 'paciente': paciente, 'senha': senha})
-
-    path_output = BytesIO()
-
-    HTML(string=template_render).write_pdf(path_output)
-    path_output.seek(0)
-    
-    return path_output
 
 @staff_member_required 
 def gerar_senha(request, exame_id):
